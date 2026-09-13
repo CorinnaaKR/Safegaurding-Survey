@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Safeguarding Training Survey</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        hsl(26,14%,19%);
+    --fg:        hsl(36,25%,91%);
+    --card:      hsl(26,14%,26%);
+    --primary:   hsl(32,85%,58%);
+    --secondary: hsl(26,12%,26%);
+    --muted-fg:  hsl(33,22%,70%);
+    --border:    hsl(26,14%,38%);
+  }
+
+  body {
+    font-family: 'Archivo', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    min-height: 100dvh;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* ── Progress ── */
+  #progress-bar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 20px;
+    display: none;
+  }
+  .progress-inner {
+    max-width: 520px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .progress-track {
+    flex: 1;
+    height: 2px;
+    background: var(--border);
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--primary);
+    transition: width .4s ease;
+  }
+  .progress-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted-fg);
+    white-space: nowrap;
+  }
+
+  /* ── Shell ── */
+  .shell {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 0 20px 80px;
+  }
+
+  /* ── Intro ── */
+  #intro {
+    padding: 48px 0 36px;
+  }
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--primary);
+    margin-bottom: 16px;
+  }
+  .survey-title {
+    font-size: clamp(22px, 5vw, 28px);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 20px;
+    letter-spacing: -.01em;
+  }
+  .survey-intro {
+    font-size: 14px;
+    color: var(--muted-fg);
+    line-height: 1.75;
+    max-width: 480px;
+    border-left: 2px solid var(--primary);
+    padding-left: 16px;
+    margin-bottom: 32px;
+  }
+  .survey-intro p + p { margin-top: 10px; }
+
+  /* ── Sections ── */
+  .section { display: none; padding-top: 40px; }
+  .section.active { display: block; }
+
+  .section-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted-fg);
+    margin-bottom: 8px;
+  }
+  .section-title {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -.01em;
+    margin-bottom: 8px;
+  }
+  .section-intro {
+    font-size: 13px;
+    color: var(--muted-fg);
+    line-height: 1.7;
+    margin-bottom: 28px;
+    border-left: 2px solid var(--border);
+    padding-left: 14px;
+  }
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin-bottom: 32px;
+  }
+
+  /* ── Questions ── */
+  .question { margin-bottom: 28px; }
+  .question-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--fg);
+    margin-bottom: 14px;
+    line-height: 1.6;
+    display: block;
+  }
+  .question-hint {
+    font-size: 12px;
+    color: var(--muted-fg);
+    margin-top: -8px;
+    margin-bottom: 14px;
+    font-style: italic;
+  }
+
+  /* ── Choice buttons ── */
+  .choices { display: flex; flex-direction: column; gap: 6px; }
+  .choice-item { position: relative; }
+  .choice-item input { position: absolute; opacity: 0; pointer-events: none; }
+  .choice-item label {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 11px 16px;
+    border: 1px solid var(--border);
+    background: rgba(72,66,57,.4);
+    color: rgba(236,231,223,.7);
+    font-family: 'Archivo', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color .12s, background .12s, color .12s;
+    line-height: 1.4;
+  }
+  .choice-item label:hover {
+    border-color: rgba(240,162,62,.5);
+    color: var(--fg);
+  }
+  .choice-item input:checked + label {
+    border-color: var(--primary);
+    background: rgba(240,162,62,.1);
+    color: var(--fg);
+  }
+
+  /* ── Rating ── */
+  .rating-wrap { display: flex; flex-direction: column; gap: 8px; }
+  .rating-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+  .rating-pill { position: relative; }
+  .rating-pill input { position: absolute; opacity: 0; pointer-events: none; }
+  .rating-pill label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border: 1px solid var(--border);
+    background: rgba(72,66,57,.4);
+    color: rgba(236,231,223,.6);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color .12s, background .12s, color .12s;
+  }
+  .rating-pill label:hover { border-color: rgba(240,162,62,.5); color: var(--fg); }
+  .rating-pill input:checked + label {
+    border-color: var(--primary);
+    background: rgba(240,162,62,.1);
+    color: var(--fg);
+  }
+  .rating-anchors {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .04em;
+    color: var(--muted-fg);
+    padding: 0 2px;
+  }
+
+  /* ── Textarea / Text input ── */
+  textarea, input[type="text"], input[type="email"] {
+    width: 100%;
+    background: rgba(72,66,57,.4);
+    border: 1px solid var(--border);
+    padding: 12px 16px;
+    font-family: 'Archivo', sans-serif;
+    font-size: 14px;
+    color: var(--fg);
+    transition: border-color .12s;
+    outline: none;
+    resize: vertical;
+  }
+  textarea::placeholder, input::placeholder { color: var(--muted-fg); opacity: 1; }
+  textarea:focus, input:focus { border-color: rgba(240,162,62,.5); }
+  textarea { min-height: 88px; line-height: 1.55; }
+
+  /* ── Conditional ── */
+  .conditional { display: none; margin-top: 8px; padding-left: 0; }
+  .conditional.show { display: block; }
+
+  /* ── Optional block ── */
+  .optional-block {
+    background: rgba(72,66,57,.3);
+    border: 1px solid var(--border);
+    padding: 18px;
+    margin-top: 8px;
+  }
+  .optional-block p {
+    font-size: 13px;
+    color: var(--muted-fg);
+    line-height: 1.65;
+    margin-bottom: 14px;
+  }
+  .field-label {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted-fg);
+    margin-bottom: 6px;
+  }
+  .privacy-note {
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--muted-fg);
+    font-style: italic;
+  }
+
+  /* ── Nav ── */
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 36px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    gap: 12px;
+  }
+  .btn {
+    font-family: 'Archivo', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 12px 24px;
+    border: none;
+    cursor: pointer;
+    transition: opacity .15s;
+    line-height: 1;
+  }
+  .btn-primary {
+    background: var(--primary);
+    color: hsl(24,14%,10%);
+  }
+  .btn-primary:hover { opacity: .88; }
+  .btn-primary:disabled { opacity: .3; cursor: not-allowed; }
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted-fg);
+    padding-left: 0;
+  }
+  .btn-ghost:hover { color: var(--fg); }
+
+  /* ── Completion ── */
+  #completion { display: none; padding: 64px 0 40px; text-align: center; }
+  #completion.active { display: block; }
+  .completion-mark {
+    width: 60px; height: 60px;
+    border: 1px solid var(--primary);
+    background: rgba(240,162,62,.08);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 28px;
+    font-size: 22px;
+    color: var(--primary);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .completion-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+  .completion-body {
+    font-size: 14px;
+    color: var(--muted-fg);
+    line-height: 1.75;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+  .completion-body p + p { margin-top: 10px; }
+
+  /* ── Saving ── */
+  .saving {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted-fg);
+    opacity: 0;
+    transition: opacity .3s;
+  }
+  .saving.show { opacity: 1; }
+
+  @media (max-width: 480px) {
+    .shell { padding: 0 16px 60px; }
+    #intro { padding: 32px 0 24px; }
+    .rating-pill label { width: 38px; height: 38px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition-duration: 0ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress-bar">
+  <div class="progress-inner">
+    <div class="progress-track"><div class="progress-fill" id="prog-fill" style="width:14%"></div></div>
+    <span class="progress-label" id="prog-label">Section 1 of 7</span>
+  </div>
+</div>
+
+<div class="shell">
+
+  <!-- Intro -->
+  <div id="intro">
+    <p class="eyebrow">H.E.L.I. — Independent Research</p>
+    <h1 class="survey-title">Safeguarding Training:<br>Your Experience &amp; What Could Be Better</h1>
+    <div class="survey-intro">
+      <p>Safeguarding training is an important part of working with children and young people, but everyone's experience of it is different.</p>
+      <p>I'm carrying out some independent research to better understand how people experience safeguarding training, what works well, and where there may be opportunities to improve it.</p>
+      <p>This short survey should take approximately 5–7 minutes to complete. You do not need to share details of any specific safeguarding cases or identify individuals.</p>
+      <p>Thank you for taking the time to contribute.</p>
+    </div>
+    <button class="btn btn-primary" onclick="startSurvey()">Begin survey →</button>
+  </div>
+
+  <form id="survey-form" novalidate>
+
+    <!-- SECTION 1 -->
+    <div class="section" id="s1">
+      <p class="section-eyebrow">Section 1 of 7</p>
+      <h2 class="section-title">About You</h2>
+      <div class="divider"></div>
+
+      <div class="question">
+        <span class="question-label">Which best describes your current role?</span>
+        <div class="choices" id="q1">
+          <div class="choice-item"><input type="radio" name="q1" id="q1-1" value="Teacher"><label for="q1-1">Teacher</label></div>
+          <div class="choice-item"><input type="radio" name="q1" id="q1-2" value="Teaching Assistant / Learning Support Assistant"><label for="q1-2">Teaching Assistant / Learning Support Assistant</label></div>
+          <div class="choice-item"><input type="radio" name="q1" id="q1-3" value="Designated Safeguarding Lead / Deputy DSL"><label for="q1-3">Designated Safeguarding Lead / Deputy DSL</label></div>
+          <div class="choice-item"><input type="radio" name="q1" id="q1-4" value="Headteacher / Senior Leadership"><label for="q1-4">Headteacher / Senior Leadership</label></div>
+          <div class="choice-item"><input type="radio" name="q1" id="q1-5" value="Early Years practitioner"><label for="q1-5">Early Years practitioner</label></div>
+          <div class="choice-item"><input type="radio" name="q1" id="q1-6" value="Social care / children's services"><label for="q1-6">Social care / children's services</label></div>
+          <div class="choice-item"><input type="radio" name="q1" id="q1-7" value="Youth worker"><label for="q1-7">Youth worker</label></div>
+          <div class="choice-item"><input type="radio" name="q1" id="q1-8" value="Healthcare professional"><label for="q1-8">Healthcare professional</label></div>
+          <div class="choice-item"><input type="radio" name="q1" id="q1-9" value="Volunteer working with children or young people"><label for="q1-9">Volunteer working with children or young people</label></div>
+          <div class="choice-item"><input type="radio" name="q1" id="q1-10" value="Student / trainee"><label for="q1-10">Student / trainee</label></div>
+          <div class="choice-item"><input type="radio" name="q1" id="q1-11" value="Other" onchange="toggle('q1-other')"><label for="q1-11">Other</label></div>
+          <div class="choice-item"><input type="radio" name="q1" id="q1-12" value="Prefer not to say" onchange="hide('q1-other')"><label for="q1-12">Prefer not to say</label></div>
+        </div>
+        <div class="conditional" id="q1-other"><input type="text" id="q1-other-text" placeholder="Please specify your role"></div>
+      </div>
+
+      <div class="question">
+        <span class="question-label">What type of setting do you primarily work in?</span>
+        <div class="choices" id="q2">
+          <div class="choice-item"><input type="radio" name="q2" id="q2-1" value="Primary school"><label for="q2-1">Primary school</label></div>
+          <div class="choice-item"><input type="radio" name="q2" id="q2-2" value="Secondary school"><label for="q2-2">Secondary school</label></div>
+          <div class="choice-item"><input type="radio" name="q2" id="q2-3" value="Special school / specialist education"><label for="q2-3">Special school / specialist education</label></div>
+          <div class="choice-item"><input type="radio" name="q2" id="q2-4" value="Further education / college"><label for="q2-4">Further education / college</label></div>
+          <div class="choice-item"><input type="radio" name="q2" id="q2-5" value="Early years / nursery"><label for="q2-5">Early years / nursery</label></div>
+          <div class="choice-item"><input type="radio" name="q2" id="q2-6" value="Children's social care"><label for="q2-6">Children's social care</label></div>
+          <div class="choice-item"><input type="radio" name="q2" id="q2-7" value="Youth / community organisation"><label for="q2-7">Youth / community organisation</label></div>
+          <div class="choice-item"><input type="radio" name="q2" id="q2-8" value="Healthcare setting"><label for="q2-8">Healthcare setting</label></div>
+          <div class="choice-item"><input type="radio" name="q2" id="q2-9" value="Charity / voluntary organisation"><label for="q2-9">Charity / voluntary organisation</label></div>
+          <div class="choice-item"><input type="radio" name="q2" id="q2-10" value="Other"><label for="q2-10">Other</label></div>
+          <div class="choice-item"><input type="radio" name="q2" id="q2-11" value="Prefer not to say"><label for="q2-11">Prefer not to say</label></div>
+        </div>
+      </div>
+
+      <div class="question">
+        <span class="question-label">How long have you worked in a role involving children or young people?</span>
+        <div class="choices" id="q3">
+          <div class="choice-item"><input type="radio" name="q3" id="q3-1" value="Less than 1 year"><label for="q3-1">Less than 1 year</label></div>
+          <div class="choice-item"><input type="radio" name="q3" id="q3-2" value="1–2 years"><label for="q3-2">1–2 years</label></div>
+          <div class="choice-item"><input type="radio" name="q3" id="q3-3" value="3–5 years"><label for="q3-3">3–5 years</label></div>
+          <div class="choice-item"><input type="radio" name="q3" id="q3-4" value="6–10 years"><label for="q3-4">6–10 years</label></div>
+          <div class="choice-item"><input type="radio" name="q3" id="q3-5" value="11–20 years"><label for="q3-5">11–20 years</label></div>
+          <div class="choice-item"><input type="radio" name="q3" id="q3-6" value="More than 20 years"><label for="q3-6">More than 20 years</label></div>
+          <div class="choice-item"><input type="radio" name="q3" id="q3-7" value="Not applicable"><label for="q3-7">Not applicable</label></div>
+          <div class="choice-item"><input type="radio" name="q3" id="q3-8" value="Prefer not to say"><label for="q3-8">Prefer not to say</label></div>
+        </div>
+      </div>
+
+      <div class="nav-row">
+        <div></div>
+        <button type="button" class="btn btn-primary" onclick="goNext(1)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- SECTION 2 -->
+    <div class="section" id="s2">
+      <p class="section-eyebrow">Section 2 of 7</p>
+      <h2 class="section-title">Your Experience of Safeguarding Training</h2>
+      <div class="divider"></div>
+
+      <div class="question">
+        <span class="question-label">How often do you usually complete safeguarding training?</span>
+        <div class="choices">
+          <div class="choice-item"><input type="radio" name="q4" id="q4-1" value="More than once a year"><label for="q4-1">More than once a year</label></div>
+          <div class="choice-item"><input type="radio" name="q4" id="q4-2" value="Once a year"><label for="q4-2">Once a year</label></div>
+          <div class="choice-item"><input type="radio" name="q4" id="q4-3" value="Every 1–2 years"><label for="q4-3">Every 1–2 years</label></div>
+          <div class="choice-item"><input type="radio" name="q4" id="q4-4" value="Less frequently"><label for="q4-4">Less frequently</label></div>
+          <div class="choice-item"><input type="radio" name="q4" id="q4-5" value="Only when required"><label for="q4-5">Only when required</label></div>
+          <div class="choice-item"><input type="radio" name="q4" id="q4-6" value="I have not completed safeguarding training"><label for="q4-6">I have not completed safeguarding training</label></div>
+          <div class="choice-item"><input type="radio" name="q4" id="q4-7" value="Not sure"><label for="q4-7">Not sure</label></div>
+        </div>
+      </div>
+
+      <div class="question">
+        <span class="question-label">Overall, how would you rate your experience of safeguarding training?</span>
+        <div class="rating-wrap">
+          <div class="rating-pills">
+            <div class="rating-pill"><input type="radio" name="q5" id="q5-1" value="1"><label for="q5-1">1</label></div>
+            <div class="rating-pill"><input type="radio" name="q5" id="q5-2" value="2"><label for="q5-2">2</label></div>
+            <div class="rating-pill"><input type="radio" name="q5" id="q5-3" value="3"><label for="q5-3">3</label></div>
+            <div class="rating-pill"><input type="radio" name="q5" id="q5-4" value="4"><label for="q5-4">4</label></div>
+            <div class="rating-pill"><input type="radio" name="q5" id="q5-5" value="5"><label for="q5-5">5</label></div>
+          </div>
+          <div class="rating-anchors"><span>Very poor</span><span>Excellent</span></div>
+        </div>
+      </div>
+
+      <div class="question">
+        <span class="question-label">How engaging do you generally find safeguarding training?</span>
+        <div class="rating-wrap">
+          <div class="rating-pills">
+            <div class="rating-pill"><input type="radio" name="q6" id="q6-1" value="1"><label for="q6-1">1</label></div>
+            <div class="rating-pill"><input type="radio" name="q6" id="q6-2" value="2"><label for="q6-2">2</label></div>
+            <div class="rating-pill"><input type="radio" name="q6" id="q6-3" value="3"><label for="q6-3">3</label></div>
+            <div class="rating-pill"><input type="radio" name="q6" id="q6-4" value="4"><label for="q6-4">4</label></div>
+            <div class="rating-pill"><input type="radio" name="q6" id="q6-5" value="5"><label for="q6-5">5</label></div>
+          </div>
+          <div class="rating-anchors"><span>Not engaging at all</span><span>Extremely engaging</span></div>
+        </div>
+      </div>
+
+      <div class="question">
+        <span class="question-label">How useful do you generally find safeguarding training?</span>
+        <div class="rating-wrap">
+          <div class="rating-pills">
+            <div class="rating-pill"><input type="radio" name="q7" id="q7-1" value="1"><label for="q7-1">1</label></div>
+            <div class="rating-pill"><input type="radio" name="q7" id="q7-2" value="2"><label for="q7-2">2</label></div>
+            <div class="rating-pill"><input type="radio" name="q7" id="q7-3" value="3"><label for="q7-3">3</label></div>
+            <div class="rating-pill"><input type="radio" name="q7" id="q7-4" value="4"><label for="q7-4">4</label></div>
+            <div class="rating-pill"><input type="radio" name="q7" id="q7-5" value="5"><label for="q7-5">5</label></div>
+          </div>
+          <div class="rating-anchors"><span>Not useful at all</span><span>Extremely useful</span></div>
+        </div>
+      </div>
+
+      <div class="question">
+        <span class="question-label">How confident do you feel that you could recognise a potential safeguarding concern?</span>
+        <div class="rating-wrap">
+          <div class="rating-pills">
+            <div class="rating-pill"><input type="radio" name="q8" id="q8-1" value="1"><label for="q8-1">1</label></div>
+            <div class="rating-pill"><input type="radio" name="q8" id="q8-2" value="2"><label for="q8-2">2</label></div>
+            <div class="rating-pill"><input type="radio" name="q8" id="q8-3" value="3"><label for="q8-3">3</label></div>
+            <div class="rating-pill"><input type="radio" name="q8" id="q8-4" value="4"><label for="q8-4">4</label></div>
+            <div class="rating-pill"><input type="radio" name="q8" id="q8-5" value="5"><label for="q8-5">5</label></div>
+          </div>
+          <div class="rating-anchors"><span>Not confident at all</span><span>Extremely confident</span></div>
+        </div>
+      </div>
+
+      <div class="question">
+        <span class="question-label">How confident do you feel that you would know what action to take if you identified a safeguarding concern?</span>
+        <div class="rating-wrap">
+          <div class="rating-pills">
+            <div class="rating-pill"><input type="radio" name="q9" id="q9-1" value="1"><label for="q9-1">1</label></div>
+            <div class="rating-pill"><input type="radio" name="q9" id="q9-2" value="2"><label for="q9-2">2</label></div>
+            <div class="rating-pill"><input type="radio" name="q9" id="q9-3" value="3"><label for="q9-3">3</label></div>
+            <div class="rating-pill"><input type="radio" name="q9" id="q9-4" value="4"><label for="q9-4">4</label></div>
+            <div class="rating-pill"><input type="radio" name="q9" id="q9-5" value="5"><label for="q9-5">5</label></div>
+          </div>
+          <div class="rating-anchors"><span>Not confident at all</span><span>Extremely confident</span></div>
+        </div>
+      </div>
+
+      <div class="nav-row">
+        <button type="button" class="btn btn-ghost" onclick="goPrev(2)">← Back</button>
+        <button type="button" class="btn btn-primary" onclick="goNext(2)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- SECTION 3 -->
+    <div class="section" id="s3">
+      <p class="section-eyebrow">Section 3 of 7</p>
+      <h2 class="section-title">What Works and What Doesn't</h2>
+      <div class="divider"></div>
+
+      <div class="question">
+        <span class="question-label">What do you currently like about safeguarding training?</span>
+        <p class="question-hint">Select all that apply.</p>
+        <div class="choices">
+          <div class="choice-item"><input type="checkbox" id="q10-1" value="It keeps safeguarding knowledge up to date"><label for="q10-1">It keeps safeguarding knowledge up to date</label></div>
+          <div class="choice-item"><input type="checkbox" id="q10-2" value="It helps me recognise warning signs"><label for="q10-2">It helps me recognise warning signs</label></div>
+          <div class="choice-item"><input type="checkbox" id="q10-3" value="It provides clear procedures"><label for="q10-3">It provides clear procedures</label></div>
+          <div class="choice-item"><input type="checkbox" id="q10-4" value="It uses realistic examples"><label for="q10-4">It uses realistic examples</label></div>
+          <div class="choice-item"><input type="checkbox" id="q10-5" value="It gives opportunities to discuss scenarios"><label for="q10-5">It gives opportunities to discuss scenarios</label></div>
+          <div class="choice-item"><input type="checkbox" id="q10-6" value="It is easy to access"><label for="q10-6">It is easy to access</label></div>
+          <div class="choice-item"><input type="checkbox" id="q10-7" value="It is straightforward to complete"><label for="q10-7">It is straightforward to complete</label></div>
+          <div class="choice-item"><input type="checkbox" id="q10-8" value="It is relevant to my role"><label for="q10-8">It is relevant to my role</label></div>
+          <div class="choice-item"><input type="checkbox" id="q10-9" value="It helps me feel more confident"><label for="q10-9">It helps me feel more confident</label></div>
+          <div class="choice-item"><input type="checkbox" id="q10-10" value="It provides useful resources afterwards"><label for="q10-10">It provides useful resources afterwards</label></div>
+          <div class="choice-item"><input type="checkbox" id="q10-11" value="I don't particularly enjoy any aspect of it"><label for="q10-11">I don't particularly enjoy any aspect of it</label></div>
+          <div class="choice-item"><input type="checkbox" id="q10-12" value="Other" onchange="toggleCb(this,'q10-other')"><label for="q10-12">Other</label></div>
+        </div>
+        <div class="conditional" id="q10-other"><input type="text" id="q10-other-text" placeholder="Please tell us more"></div>
+      </div>
+
+      <div class="question">
+        <span class="question-label">What do you currently dislike or find frustrating about safeguarding training?</span>
+        <p class="question-hint">Select all that apply.</p>
+        <div class="choices">
+          <div class="choice-item"><input type="checkbox" id="q11-1" value="Too much reading"><label for="q11-1">Too much reading</label></div>
+          <div class="choice-item"><input type="checkbox" id="q11-2" value="Too much information at once"><label for="q11-2">Too much information at once</label></div>
+          <div class="choice-item"><input type="checkbox" id="q11-3" value="Repetitive"><label for="q11-3">Repetitive</label></div>
+          <div class="choice-item"><input type="checkbox" id="q11-4" value="Too long"><label for="q11-4">Too long</label></div>
+          <div class="choice-item"><input type="checkbox" id="q11-5" value="Not interactive enough"><label for="q11-5">Not interactive enough</label></div>
+          <div class="choice-item"><input type="checkbox" id="q11-6" value="Too theoretical"><label for="q11-6">Too theoretical</label></div>
+          <div class="choice-item"><input type="checkbox" id="q11-7" value="Not relevant enough to my role"><label for="q11-7">Not relevant enough to my role</label></div>
+          <div class="choice-item"><input type="checkbox" id="q11-8" value="Scenarios don't feel realistic"><label for="q11-8">Scenarios don't feel realistic</label></div>
+          <div class="choice-item"><input type="checkbox" id="q11-9" value="Mainly consists of watching videos"><label for="q11-9">Mainly consists of watching videos</label></div>
+          <div class="choice-item"><input type="checkbox" id="q11-10" value="Mainly consists of quizzes/tests"><label for="q11-10">Mainly consists of quizzes/tests</label></div>
+          <div class="choice-item"><input type="checkbox" id="q11-11" value="Feels like a box-ticking exercise"><label for="q11-11">Feels like a box-ticking exercise</label></div>
+          <div class="choice-item"><input type="checkbox" id="q11-12" value="Difficult to remember afterwards"><label for="q11-12">Difficult to remember afterwards</label></div>
+          <div class="choice-item"><input type="checkbox" id="q11-13" value="Doesn't give enough opportunity to practise decision-making"><label for="q11-13">Doesn't give enough opportunity to practise decision-making</label></div>
+          <div class="choice-item"><input type="checkbox" id="q11-14" value="Training is difficult to access"><label for="q11-14">Training is difficult to access</label></div>
+          <div class="choice-item"><input type="checkbox" id="q11-15" value="I don't have enough time to complete it properly"><label for="q11-15">I don't have enough time to complete it properly</label></div>
+          <div class="choice-item"><input type="checkbox" id="q11-16" value="Nothing in particular"><label for="q11-16">Nothing in particular</label></div>
+          <div class="choice-item"><input type="checkbox" id="q11-17" value="Other" onchange="toggleCb(this,'q11-other')"><label for="q11-17">Other</label></div>
+        </div>
+        <div class="conditional" id="q11-other"><input type="text" id="q11-other-text" placeholder="Please tell us more"></div>
+      </div>
+
+      <div class="question">
+        <span class="question-label">What is the biggest challenge you experience with safeguarding training?</span>
+        <p class="question-hint">Think about the training you have completed. What is the one thing you think could be improved most?</p>
+        <textarea id="q12" placeholder="Optional — your thoughts here"></textarea>
+      </div>
+
+      <div class="nav-row">
+        <button type="button" class="btn btn-ghost" onclick="goPrev(3)">← Back</button>
+        <button type="button" class="btn btn-primary" onclick="goNext(3)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- SECTION 4 -->
+    <div class="section" id="s4">
+      <p class="section-eyebrow">Section 4 of 7</p>
+      <h2 class="section-title">Learning and Retaining Information</h2>
+      <div class="divider"></div>
+
+      <div class="question">
+        <span class="question-label">Which approaches do you think help you learn safeguarding information most effectively?</span>
+        <p class="question-hint">Select all that apply.</p>
+        <div class="choices">
+          <div class="choice-item"><input type="checkbox" id="q13-1" value="Reading written information"><label for="q13-1">Reading written information</label></div>
+          <div class="choice-item"><input type="checkbox" id="q13-2" value="Presentations"><label for="q13-2">Presentations</label></div>
+          <div class="choice-item"><input type="checkbox" id="q13-3" value="Videos"><label for="q13-3">Videos</label></div>
+          <div class="choice-item"><input type="checkbox" id="q13-4" value="Real-life case studies"><label for="q13-4">Real-life case studies</label></div>
+          <div class="choice-item"><input type="checkbox" id="q13-5" value="Realistic fictional scenarios"><label for="q13-5">Realistic fictional scenarios</label></div>
+          <div class="choice-item"><input type="checkbox" id="q13-6" value="Interactive scenarios"><label for="q13-6">Interactive scenarios</label></div>
+          <div class="choice-item"><input type="checkbox" id="q13-7" value="Making decisions and seeing what happens next"><label for="q13-7">Making decisions and seeing what happens next</label></div>
+          <div class="choice-item"><input type="checkbox" id="q13-8" value="Quizzes"><label for="q13-8">Quizzes</label></div>
+          <div class="choice-item"><input type="checkbox" id="q13-9" value="Group discussion"><label for="q13-9">Group discussion</label></div>
+          <div class="choice-item"><input type="checkbox" id="q13-10" value="Role play"><label for="q13-10">Role play</label></div>
+          <div class="choice-item"><input type="checkbox" id="q13-11" value="Games / game-like activities"><label for="q13-11">Games / game-like activities</label></div>
+          <div class="choice-item"><input type="checkbox" id="q13-12" value="Practical exercises"><label for="q13-12">Practical exercises</label></div>
+          <div class="choice-item"><input type="checkbox" id="q13-13" value="A combination of different approaches"><label for="q13-13">A combination of different approaches</label></div>
+          <div class="choice-item"><input type="checkbox" id="q13-14" value="Other"><label for="q13-14">Other</label></div>
+        </div>
+      </div>
+
+      <div class="question">
+        <span class="question-label">How useful would you find opportunities to practise responding to realistic safeguarding situations in a safe environment?</span>
+        <div class="rating-wrap">
+          <div class="rating-pills">
+            <div class="rating-pill"><input type="radio" name="q14" id="q14-1" value="1"><label for="q14-1">1</label></div>
+            <div class="rating-pill"><input type="radio" name="q14" id="q14-2" value="2"><label for="q14-2">2</label></div>
+            <div class="rating-pill"><input type="radio" name="q14" id="q14-3" value="3"><label for="q14-3">3</label></div>
+            <div class="rating-pill"><input type="radio" name="q14" id="q14-4" value="4"><label for="q14-4">4</label></div>
+            <div class="rating-pill"><input type="radio" name="q14" id="q14-5" value="5"><label for="q14-5">5</label></div>
+          </div>
+          <div class="rating-anchors"><span>Not useful at all</span><span>Extremely useful</span></div>
+        </div>
+      </div>
+
+      <div class="question">
+        <span class="question-label">Which of the following would make safeguarding training more engaging for you?</span>
+        <p class="question-hint">Select all that apply.</p>
+        <div class="choices">
+          <div class="choice-item"><input type="checkbox" id="q15-1" value="More realistic scenarios"><label for="q15-1">More realistic scenarios</label></div>
+          <div class="choice-item"><input type="checkbox" id="q15-2" value="Interactive decision-making"><label for="q15-2">Interactive decision-making</label></div>
+          <div class="choice-item"><input type="checkbox" id="q15-3" value="Shorter activities"><label for="q15-3">Shorter activities</label></div>
+          <div class="choice-item"><input type="checkbox" id="q15-4" value="More visual content"><label for="q15-4">More visual content</label></div>
+          <div class="choice-item"><input type="checkbox" id="q15-5" value="Less text"><label for="q15-5">Less text</label></div>
+          <div class="choice-item"><input type="checkbox" id="q15-6" value="Immediate feedback"><label for="q15-6">Immediate feedback</label></div>
+          <div class="choice-item"><input type="checkbox" id="q15-7" value="Seeing the consequences of decisions"><label for="q15-7">Seeing the consequences of decisions</label></div>
+          <div class="choice-item"><input type="checkbox" id="q15-8" value="More opportunities to discuss situations"><label for="q15-8">More opportunities to discuss situations</label></div>
+          <div class="choice-item"><input type="checkbox" id="q15-9" value="Being able to learn at my own pace"><label for="q15-9">Being able to learn at my own pace</label></div>
+          <div class="choice-item"><input type="checkbox" id="q15-10" value="Game-like elements"><label for="q15-10">Game-like elements</label></div>
+          <div class="choice-item"><input type="checkbox" id="q15-11" value="More variety between training sessions"><label for="q15-11">More variety between training sessions</label></div>
+          <div class="choice-item"><input type="checkbox" id="q15-12" value="Training tailored to my specific role"><label for="q15-12">Training tailored to my specific role</label></div>
+          <div class="choice-item"><input type="checkbox" id="q15-13" value="None of these"><label for="q15-13">None of these</label></div>
+          <div class="choice-item"><input type="checkbox" id="q15-14" value="Other"><label for="q15-14">Other</label></div>
+        </div>
+      </div>
+
+      <div class="question">
+        <span class="question-label">After completing safeguarding training, how much information do you feel you actually remember several months later?</span>
+        <div class="rating-wrap">
+          <div class="rating-pills">
+            <div class="rating-pill"><input type="radio" name="q16" id="q16-1" value="1"><label for="q16-1">1</label></div>
+            <div class="rating-pill"><input type="radio" name="q16" id="q16-2" value="2"><label for="q16-2">2</label></div>
+            <div class="rating-pill"><input type="radio" name="q16" id="q16-3" value="3"><label for="q16-3">3</label></div>
+            <div class="rating-pill"><input type="radio" name="q16" id="q16-4" value="4"><label for="q16-4">4</label></div>
+            <div class="rating-pill"><input type="radio" name="q16" id="q16-5" value="5"><label for="q16-5">5</label></div>
+          </div>
+          <div class="rating-anchors"><span>Very little</span><span>Almost everything important</span></div>
+        </div>
+      </div>
+
+      <div class="nav-row">
+        <button type="button" class="btn btn-ghost" onclick="goPrev(4)">← Back</button>
+        <button type="button" class="btn btn-primary" onclick="goNext(4)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- SECTION 5 -->
+    <div class="section" id="s5">
+      <p class="section-eyebrow">Section 5 of 7</p>
+      <h2 class="section-title">What Would Better Training Look Like?</h2>
+      <div class="divider"></div>
+
+      <div class="question">
+        <span class="question-label">If you could redesign safeguarding training, what would you change?</span>
+        <textarea id="q17" placeholder="Optional — your thoughts here" rows="5"></textarea>
+      </div>
+
+      <div class="question">
+        <span class="question-label">Complete the following sentence: "Safeguarding training would be much better if..."</span>
+        <textarea id="q18" placeholder="..." rows="4"></textarea>
+      </div>
+
+      <div class="question">
+        <span class="question-label">What would make safeguarding training something you actively wanted to take part in rather than something you simply had to complete?</span>
+        <textarea id="q19" placeholder="Optional — your thoughts here" rows="5"></textarea>
+      </div>
+
+      <div class="nav-row">
+        <button type="button" class="btn btn-ghost" onclick="goPrev(5)">← Back</button>
+        <button type="button" class="btn btn-primary" onclick="goNext(5)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- SECTION 6 -->
+    <div class="section" id="s6">
+      <p class="section-eyebrow">Section 6 of 7</p>
+      <h2 class="section-title">Introducing the Concept</h2>
+      <div class="divider"></div>
+      <div class="section-intro">
+        <p>Thank you for sharing your experience.</p>
+        <p>Based on some of the challenges identified through this research, I am exploring the development of an interactive educational platform called <strong>H.E.L.I.</strong> (Helping Everyone Learn Interactively). H.E.L.I. is intended to use interactive scenarios, decision-making and storytelling to help learners explore potentially difficult situations in a safe environment.</p>
+        <p>The concept is still in development, and this survey is not asking you to endorse the project. I'm interested in whether the approach addresses some of the needs you have identified.</p>
+      </div>
+
+      <div class="question">
+        <span class="question-label">Based on that description, how useful do you think an interactive, scenario-based approach could be for safeguarding education?</span>
+        <div class="rating-wrap">
+          <div class="rating-pills">
+            <div class="rating-pill"><input type="radio" name="q20" id="q20-1" value="1"><label for="q20-1">1</label></div>
+            <div class="rating-pill"><input type="radio" name="q20" id="q20-2" value="2"><label for="q20-2">2</label></div>
+            <div class="rating-pill"><input type="radio" name="q20" id="q20-3" value="3"><label for="q20-3">3</label></div>
+            <div class="rating-pill"><input type="radio" name="q20" id="q20-4" value="4"><label for="q20-4">4</label></div>
+            <div class="rating-pill"><input type="radio" name="q20" id="q20-5" value="5"><label for="q20-5">5</label></div>
+          </div>
+          <div class="rating-anchors"><span>Not useful at all</span><span>Extremely useful</span></div>
+        </div>
+      </div>
+
+      <div class="question">
+        <span class="question-label">Which aspects of this approach would you find most valuable?</span>
+        <p class="question-hint">Select all that apply.</p>
+        <div class="choices">
+          <div class="choice-item"><input type="checkbox" id="q21-1" value="Exploring realistic scenarios"><label for="q21-1">Exploring realistic scenarios</label></div>
+          <div class="choice-item"><input type="checkbox" id="q21-2" value="Making decisions rather than simply reading information"><label for="q21-2">Making decisions rather than simply reading information</label></div>
+          <div class="choice-item"><input type="checkbox" id="q21-3" value="Seeing the consequences of different decisions"><label for="q21-3">Seeing the consequences of different decisions</label></div>
+          <div class="choice-item"><input type="checkbox" id="q21-4" value="Learning in a safe environment"><label for="q21-4">Learning in a safe environment</label></div>
+          <div class="choice-item"><input type="checkbox" id="q21-5" value="Practising recognising potential warning signs"><label for="q21-5">Practising recognising potential warning signs</label></div>
+          <div class="choice-item"><input type="checkbox" id="q21-6" value="Practising what action to take"><label for="q21-6">Practising what action to take</label></div>
+          <div class="choice-item"><input type="checkbox" id="q21-7" value="Interactive storytelling"><label for="q21-7">Interactive storytelling</label></div>
+          <div class="choice-item"><input type="checkbox" id="q21-8" value="Being able to learn at your own pace"><label for="q21-8">Being able to learn at your own pace</label></div>
+          <div class="choice-item"><input type="checkbox" id="q21-9" value="More engaging training"><label for="q21-9">More engaging training</label></div>
+          <div class="choice-item"><input type="checkbox" id="q21-10" value="Less reliance on text"><label for="q21-10">Less reliance on text</label></div>
+          <div class="choice-item"><input type="checkbox" id="q21-11" value="Other"><label for="q21-11">Other</label></div>
+        </div>
+      </div>
+
+      <div class="question">
+        <span class="question-label">What concerns, if any, would you have about using an interactive approach to safeguarding education?</span>
+        <p class="question-hint">Select all that apply.</p>
+        <div class="choices">
+          <div class="choice-item"><input type="checkbox" id="q22-1" value="It might make serious subjects feel less serious"><label for="q22-1">It might make serious subjects feel less serious</label></div>
+          <div class="choice-item"><input type="checkbox" id="q22-2" value="It might be too simplistic"><label for="q22-2">It might be too simplistic</label></div>
+          <div class="choice-item"><input type="checkbox" id="q22-3" value="It might not be suitable for all learners"><label for="q22-3">It might not be suitable for all learners</label></div>
+          <div class="choice-item"><input type="checkbox" id="q22-4" value="It could take too much time"><label for="q22-4">It could take too much time</label></div>
+          <div class="choice-item"><input type="checkbox" id="q22-5" value="It might not fit existing training requirements"><label for="q22-5">It might not fit existing training requirements</label></div>
+          <div class="choice-item"><input type="checkbox" id="q22-6" value="I would need evidence that it is effective"><label for="q22-6">I would need evidence that it is effective</label></div>
+          <div class="choice-item"><input type="checkbox" id="q22-7" value="I would need it to complement rather than replace existing training"><label for="q22-7">I would need it to complement rather than replace existing training</label></div>
+          <div class="choice-item"><input type="checkbox" id="q22-8" value="I don't have any concerns"><label for="q22-8">I don't have any concerns</label></div>
+          <div class="choice-item"><input type="checkbox" id="q22-9" value="Other" onchange="toggleCb(this,'q22-other')"><label for="q22-9">Other</label></div>
+        </div>
+        <div class="conditional" id="q22-other"><input type="text" id="q22-other-text" placeholder="Please tell us more"></div>
+      </div>
+
+      <div class="question">
+        <span class="question-label">Would you be interested in seeing or testing a future H.E.L.I. prototype?</span>
+        <div class="choices">
+          <div class="choice-item"><input type="radio" name="q23" id="q23-1" value="Yes"><label for="q23-1">Yes</label></div>
+          <div class="choice-item"><input type="radio" name="q23" id="q23-2" value="Maybe"><label for="q23-2">Maybe</label></div>
+          <div class="choice-item"><input type="radio" name="q23" id="q23-3" value="No"><label for="q23-3">No</label></div>
+        </div>
+      </div>
+
+      <div class="nav-row">
+        <button type="button" class="btn btn-ghost" onclick="goPrev(6)">← Back</button>
+        <button type="button" class="btn btn-primary" onclick="goNext(6)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- SECTION 7 -->
+    <div class="section" id="s7">
+      <p class="section-eyebrow">Section 7 of 7</p>
+      <h2 class="section-title">Final Thoughts</h2>
+      <div class="divider"></div>
+
+      <div class="question">
+        <span class="question-label">Is there anything else you think developers of safeguarding training should understand about your experience?</span>
+        <textarea id="q24" placeholder="Optional — your thoughts here" rows="5"></textarea>
+      </div>
+
+      <div class="question">
+        <span class="question-label">Would you be willing to take part in future research or prototype testing?</span>
+        <div class="choices">
+          <div class="choice-item"><input type="radio" name="q25" id="q25-1" value="Yes" onchange="toggle('q25-email')"><label for="q25-1">Yes</label></div>
+          <div class="choice-item"><input type="radio" name="q25" id="q25-2" value="Maybe" onchange="toggle('q25-email')"><label for="q25-2">Maybe</label></div>
+          <div class="choice-item"><input type="radio" name="q25" id="q25-3" value="No" onchange="hide('q25-email')"><label for="q25-3">No</label></div>
+        </div>
+        <div class="conditional" id="q25-email">
+          <div class="optional-block">
+            <p>If you'd be happy to be contacted, you're welcome to leave your email address below. This is entirely optional.</p>
+            <label class="field-label" for="q25-email-input">Email address</label>
+            <input type="email" id="q25-email-input" placeholder="your@email.com">
+            <p class="privacy-note">Your email address will only be used to contact you about this research or project and will not be shared or published.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="question">
+        <span class="question-label">May I use an anonymous quotation from your responses in future research, presentations or funding applications?</span>
+        <div class="choices">
+          <div class="choice-item"><input type="radio" name="q26" id="q26-1" value="Yes"><label for="q26-1">Yes</label></div>
+          <div class="choice-item"><input type="radio" name="q26" id="q26-2" value="No"><label for="q26-2">No</label></div>
+        </div>
+      </div>
+
+      <div class="nav-row">
+        <button type="button" class="btn btn-ghost" onclick="goPrev(7)">← Back</button>
+        <div style="display:flex;align-items:center;gap:14px;">
+          <span class="saving" id="saving-msg">Saving…</span>
+          <button type="button" class="btn btn-primary" id="submit-btn" onclick="submitSurvey()">Submit →</button>
+        </div>
+      </div>
+    </div>
+
+  </form>
+
+  <!-- Completion -->
+  <div id="completion">
+    <div class="completion-mark">✓</div>
+    <h2 class="completion-title">Thank you for taking part!</h2>
+    <div class="completion-body">
+      <p>Your feedback will help inform research into how safeguarding education could be made more engaging, practical and memorable.</p>
+      <p>If you opted to take part in future research, you may be contacted when the H.E.L.I. prototype is ready for testing.</p>
+      <p>Thank you for helping shape the research.</p>
+    </div>
+  </div>
+
+</div><!-- /shell -->
+
+<script>
+  let current = 0;
+  const TOTAL = 7;
+
+  function startSurvey() {
+    document.getElementById('intro').style.display = 'none';
+    document.getElementById('progress-bar').style.display = 'block';
+    showSection(1);
+  }
+
+  function showSection(n) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    const s = document.getElementById('s' + n);
+    if (s) s.classList.add('active');
+    current = n;
+    const pct = Math.round((n / TOTAL) * 100);
+    document.getElementById('prog-fill').style.width = pct + '%';
+    document.getElementById('prog-label').textContent = 'Section ' + n + ' of ' + TOTAL;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function goNext(from) { showSection(from + 1); }
+  function goPrev(from) {
+    if (from === 1) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.getElementById('intro').style.display = '';
+      document.getElementById('progress-bar').style.display = 'none';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      showSection(from - 1);
+    }
+  }
+
+  function toggle(id) { document.getElementById(id).classList.add('show'); }
+  function hide(id) { document.getElementById(id).classList.remove('show'); }
+  function toggleCb(cb, id) {
+    document.getElementById(id).classList.toggle('show', cb.checked);
+  }
+
+  function radio(name) {
+    const el = document.querySelector('input[name="' + name + '"]:checked');
+    return el ? el.value : '';
+  }
+  function checkboxes(prefix, count) {
+    const vals = [];
+    for (let i = 1; i <= count; i++) {
+      const el = document.getElementById(prefix + '-' + i);
+      if (el && el.checked) vals.push(el.value);
+    }
+    return vals.join(', ');
+  }
+  function txt(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+  function num(name) { const v = radio(name); return v ? parseInt(v, 10) : null; }
+
+  async function submitSurvey() {
+    const btn = document.getElementById('submit-btn');
+    const saving = document.getElementById('saving-msg');
+    btn.disabled = true;
+    saving.classList.add('show');
+
+    const fields = {
+      'Submitted At': new Date().toISOString(),
+      'Role': radio('q1'),
+      'Role Other': txt('q1-other-text'),
+      'Setting': radio('q2'),
+      'Experience': radio('q3'),
+      'Training Frequency': radio('q4'),
+      'Overall Rating': num('q5'),
+      'Engaging Rating': num('q6'),
+      'Useful Rating': num('q7'),
+      'Recognise Confidence': num('q8'),
+      'Action Confidence': num('q9'),
+      'Likes': checkboxes('q10', 12),
+      'Likes Other': txt('q10-other-text'),
+      'Dislikes': checkboxes('q11', 17),
+      'Dislikes Other': txt('q11-other-text'),
+      'Biggest Challenge': txt('q12'),
+      'Learning Approaches': checkboxes('q13', 14),
+      'Practice Useful': num('q14'),
+      'Would Make Engaging': checkboxes('q15', 14),
+      'Retention Rating': num('q16'),
+      'Redesign Ideas': txt('q17'),
+      'Complete Sentence': txt('q18'),
+      'Would Want To': txt('q19'),
+      'HELI Useful': num('q20'),
+      'HELI Valuable': checkboxes('q21', 11),
+      'HELI Concerns': checkboxes('q22', 9),
+      'HELI Concerns Other': txt('q22-other-text'),
+      'Prototype Interest': radio('q23'),
+      'Final Thoughts': txt('q24'),
+      'Future Research': radio('q25'),
+      'Email': txt('q25-email-input'),
+      'Quote Consent': radio('q26'),
+    };
+
+    // Strip nulls and empty strings
+    Object.keys(fields).forEach(k => {
+      if (fields[k] === null || fields[k] === '') delete fields[k];
+    });
+
+    const AIRTABLE_TOKEN = 'patEBJURVgDYXbM6b.f7de54347c3457a6615c8c7334137e0483d8670575467149a6cc2f4bd3866d46';
+    const AIRTABLE_BASE  = 'app82yqY75STwoPiX';
+    const AIRTABLE_TABLE = 'tbljP6tOz0ESDtQFR';
+
+    try {
+      await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE}/${AIRTABLE_TABLE}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${AIRTABLE_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ fields }),
+      });
+    } catch (e) {
+      console.error('Survey submission failed:', e);
+    }
+
+    try { localStorage.setItem('heli-survey-submitted', '1'); } catch (_) {}
+
+    saving.classList.remove('show');
+    document.getElementById('survey-form').style.display = 'none';
+    document.getElementById('progress-bar').style.display = 'none';
+    document.getElementById('completion').classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
