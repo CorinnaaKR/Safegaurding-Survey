@@ -951,8 +951,9 @@
     const AIRTABLE_BASE  = 'app82yqY75STwoPiX';
     const AIRTABLE_TABLE = 'tbljP6tOz0ESDtQFR';
 
+    let submitOk = false;
     try {
-      await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE}/${AIRTABLE_TABLE}`, {
+      const res = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE}/${AIRTABLE_TABLE}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${AIRTABLE_TOKEN}`,
@@ -960,13 +961,25 @@
         },
         body: JSON.stringify({ fields }),
       });
+      if (!res.ok) {
+        const errBody = await res.text();
+        console.error('Airtable error', res.status, errBody);
+        alert('Submission failed (' + res.status + '): ' + errBody);
+      } else {
+        submitOk = true;
+      }
     } catch (e) {
       console.error('Survey submission failed:', e);
+      alert('Submission failed: ' + e.message);
     }
+
+    saving.classList.remove('show');
+    btn.disabled = false;
+
+    if (!submitOk) return;
 
     try { localStorage.setItem('heli-survey-submitted', '1'); } catch (_) {}
 
-    saving.classList.remove('show');
     document.getElementById('survey-form').style.display = 'none';
     document.getElementById('progress-bar').style.display = 'none';
     document.getElementById('completion').classList.add('active');
