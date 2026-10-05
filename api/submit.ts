@@ -9,15 +9,11 @@ const ALLOWED_FIELDS = new Set([
   'Role',
   'Setting',
   'Experience',
-  'Training Frequency',
-  'Overall Rating',
-  'Engaging Rating',
   'Approach',
+  'Engaging Rating',
   'Frustrations',
-  'Other Thoughts',
   'HELI Useful',
   'Prototype Interest',
-  'Future Research',
   'Email',
 ]);
 
