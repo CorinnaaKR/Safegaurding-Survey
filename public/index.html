@@ -14,8 +14,8 @@
     --fg:        hsl(36,25%,91%);
     --card:      hsl(26,14%,26%);
     --primary:   hsl(32,85%,58%);
-    --muted-fg:  hsl(33,22%,70%);
-    --border:    hsl(26,14%,38%);
+    --muted-fg:  hsl(33,20%,76%);
+    --border:    hsl(26,14%,40%);
   }
 
   body {
@@ -23,7 +23,7 @@
     background: var(--bg);
     color: var(--fg);
     min-height: 100dvh;
-    font-size: 15px;
+    font-size: 16px;
     line-height: 1.6;
   }
 
@@ -113,19 +113,26 @@
   }
   .divider { height: 1px; background: var(--border); margin-bottom: 32px; }
 
-  .question { margin-bottom: 28px; }
-  .question-label {
+  .question {
+    margin-bottom: 32px;
+    border: none;
+    padding: 0;
+    min-width: 0;
+  }
+  .question legend, .question-label {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: .14em;
+    font-size: 13px;
+    letter-spacing: .08em;
     text-transform: uppercase;
     color: var(--fg);
     margin-bottom: 14px;
-    line-height: 1.6;
+    line-height: 1.55;
     display: block;
+    width: 100%;
+    text-wrap: balance;
   }
   .question-hint {
-    font-size: 12px;
+    font-size: 13px;
     color: var(--muted-fg);
     margin-top: -8px;
     margin-bottom: 14px;
@@ -134,20 +141,20 @@
 
   .choices { display: flex; flex-direction: column; gap: 6px; }
   .choice-item { position: relative; }
-  .choice-item input { position: absolute; opacity: 0; pointer-events: none; }
+  .choice-item input { position: absolute; opacity: 0; width: 1px; height: 1px; }
   .choice-item label {
     display: block;
     width: 100%;
     text-align: left;
-    padding: 11px 16px;
+    padding: 12px 16px;
     border: 1px solid var(--border);
     background: rgba(72,66,57,.4);
     color: rgba(236,231,223,.7);
     font-family: 'Archivo', sans-serif;
-    font-size: 14px;
+    font-size: 15px;
     cursor: pointer;
     transition: border-color .12s, background .12s, color .12s;
-    line-height: 1.4;
+    line-height: 1.45;
   }
   .choice-item label:hover { border-color: rgba(240,162,62,.5); color: var(--fg); }
   .choice-item input:checked + label {
@@ -155,22 +162,26 @@
     background: rgba(240,162,62,.1);
     color: var(--fg);
   }
+  .choice-item input:focus-visible + label {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
 
   .rating-wrap { display: flex; flex-direction: column; gap: 8px; }
   .rating-pills { display: flex; gap: 6px; flex-wrap: wrap; }
   .rating-pill { position: relative; }
-  .rating-pill input { position: absolute; opacity: 0; pointer-events: none; }
+  .rating-pill input { position: absolute; opacity: 0; width: 1px; height: 1px; }
   .rating-pill label {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 42px;
-    height: 42px;
+    width: 48px;
+    height: 48px;
     border: 1px solid var(--border);
     background: rgba(72,66,57,.4);
     color: rgba(236,231,223,.6);
     font-family: 'JetBrains Mono', monospace;
-    font-size: 14px;
+    font-size: 15px;
     cursor: pointer;
     transition: border-color .12s, background .12s, color .12s;
   }
@@ -180,12 +191,15 @@
     background: rgba(240,162,62,.1);
     color: var(--fg);
   }
+  .rating-pill input:focus-visible + label {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
   .rating-anchors {
     display: flex;
     justify-content: space-between;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: .04em;
+    font-size: 12px;
     color: var(--muted-fg);
     padding: 0 2px;
   }
@@ -248,14 +262,15 @@
   }
   .btn {
     font-family: 'Archivo', sans-serif;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 600;
-    padding: 12px 24px;
+    padding: 13px 28px;
     border: none;
     cursor: pointer;
     transition: opacity .15s;
     line-height: 1;
   }
+  .btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
   .btn-primary { background: var(--primary); color: hsl(24,14%,10%); }
   .btn-primary:hover { opacity: .88; }
   .btn-primary:disabled { opacity: .3; cursor: not-allowed; }
@@ -334,8 +349,8 @@
       <h2 class="section-title">About You</h2>
       <div class="divider"></div>
 
-      <div class="question">
-        <span class="question-label">Which best describes your current role?</span>
+      <fieldset class="question">
+        <legend>Which best describes your current role?</legend>
         <div class="choices">
           <div class="choice-item"><input type="radio" name="q1" id="q1-1" value="Teacher"><label for="q1-1">Teacher</label></div>
           <div class="choice-item"><input type="radio" name="q1" id="q1-2" value="Teaching Assistant / Learning Support Assistant"><label for="q1-2">Teaching Assistant / Learning Support Assistant</label></div>
@@ -350,10 +365,10 @@
           <div class="choice-item"><input type="radio" name="q1" id="q1-11" value="Other"><label for="q1-11">Other</label></div>
           <div class="choice-item"><input type="radio" name="q1" id="q1-12" value="Prefer not to say"><label for="q1-12">Prefer not to say</label></div>
         </div>
-      </div>
+      </fieldset>
 
-      <div class="question">
-        <span class="question-label">What type of setting do you primarily work in?</span>
+      <fieldset class="question">
+        <legend>What type of setting do you primarily work in?</legend>
         <div class="choices">
           <div class="choice-item"><input type="radio" name="q2" id="q2-1" value="Primary school"><label for="q2-1">Primary school</label></div>
           <div class="choice-item"><input type="radio" name="q2" id="q2-2" value="Secondary school"><label for="q2-2">Secondary school</label></div>
@@ -367,10 +382,10 @@
           <div class="choice-item"><input type="radio" name="q2" id="q2-10" value="Other"><label for="q2-10">Other</label></div>
           <div class="choice-item"><input type="radio" name="q2" id="q2-11" value="Prefer not to say"><label for="q2-11">Prefer not to say</label></div>
         </div>
-      </div>
+      </fieldset>
 
-      <div class="question">
-        <span class="question-label">How long have you worked in a role involving children or young people?</span>
+      <fieldset class="question">
+        <legend>How long have you worked in a role involving children or young people?</legend>
         <div class="choices">
           <div class="choice-item"><input type="radio" name="q3" id="q3-1" value="Less than 1 year"><label for="q3-1">Less than 1 year</label></div>
           <div class="choice-item"><input type="radio" name="q3" id="q3-2" value="1–2 years"><label for="q3-2">1–2 years</label></div>
@@ -380,7 +395,7 @@
           <div class="choice-item"><input type="radio" name="q3" id="q3-6" value="More than 20 years"><label for="q3-6">More than 20 years</label></div>
           <div class="choice-item"><input type="radio" name="q3" id="q3-7" value="Prefer not to say"><label for="q3-7">Prefer not to say</label></div>
         </div>
-      </div>
+      </fieldset>
 
       <div class="nav-row">
         <div></div>
@@ -394,8 +409,8 @@
       <h2 class="section-title">Your Experience of Safeguarding Training</h2>
       <div class="divider"></div>
 
-      <div class="question">
-        <span class="question-label">How often do you usually complete safeguarding training?</span>
+      <fieldset class="question">
+        <legend>How often do you usually complete safeguarding training?</legend>
         <div class="choices">
           <div class="choice-item"><input type="radio" name="q4" id="q4-1" value="More than once a year"><label for="q4-1">More than once a year</label></div>
           <div class="choice-item"><input type="radio" name="q4" id="q4-2" value="Once a year"><label for="q4-2">Once a year</label></div>
@@ -404,10 +419,10 @@
           <div class="choice-item"><input type="radio" name="q4" id="q4-5" value="Only when required"><label for="q4-5">Only when required</label></div>
           <div class="choice-item"><input type="radio" name="q4" id="q4-6" value="I have not completed safeguarding training"><label for="q4-6">I have not completed safeguarding training</label></div>
         </div>
-      </div>
+      </fieldset>
 
-      <div class="question">
-        <span class="question-label">Overall, how would you rate your experience of safeguarding training?</span>
+      <fieldset class="question">
+        <legend>Overall, how would you rate your experience of safeguarding training?</legend>
         <div class="rating-wrap">
           <div class="rating-pills">
             <div class="rating-pill"><input type="radio" name="q5" id="q5-1" value="1"><label for="q5-1">1</label></div>
@@ -418,10 +433,10 @@
           </div>
           <div class="rating-anchors"><span>Very poor</span><span>Excellent</span></div>
         </div>
-      </div>
+      </fieldset>
 
-      <div class="question">
-        <span class="question-label">How engaging do you generally find safeguarding training?</span>
+      <fieldset class="question">
+        <legend>How engaging do you generally find safeguarding training?</legend>
         <div class="rating-wrap">
           <div class="rating-pills">
             <div class="rating-pill"><input type="radio" name="q6" id="q6-1" value="1"><label for="q6-1">1</label></div>
@@ -432,10 +447,10 @@
           </div>
           <div class="rating-anchors"><span>Not engaging at all</span><span>Extremely engaging</span></div>
         </div>
-      </div>
+      </fieldset>
 
-      <div class="question">
-        <span class="question-label">Honestly, how do you typically approach safeguarding training?</span>
+      <fieldset class="question">
+        <legend>Honestly, how do you typically approach safeguarding training?</legend>
         <div class="choices">
           <div class="choice-item"><input type="radio" name="q7" id="q7-1" value="I engage with it fully"><label for="q7-1">I engage with it fully</label></div>
           <div class="choice-item"><input type="radio" name="q7" id="q7-2" value="I complete it but don't find it particularly engaging"><label for="q7-2">I complete it but don't find it particularly engaging</label></div>
@@ -443,7 +458,7 @@
           <div class="choice-item"><input type="radio" name="q7" id="q7-4" value="I skip through as much as possible"><label for="q7-4">I skip through as much as possible</label></div>
           <div class="choice-item"><input type="radio" name="q7" id="q7-5" value="It varies depending on the training"><label for="q7-5">It varies depending on the training</label></div>
         </div>
-      </div>
+      </fieldset>
 
       <div class="nav-row">
         <button type="button" class="btn btn-ghost" onclick="goPrev(2)">← Back</button>
@@ -457,8 +472,8 @@
       <h2 class="section-title">What's Not Working</h2>
       <div class="divider"></div>
 
-      <div class="question">
-        <span class="question-label">What do you find frustrating about safeguarding training?</span>
+      <fieldset class="question">
+        <legend>What do you find frustrating about safeguarding training?</legend>
         <p class="question-hint">Select all that apply.</p>
         <div class="choices">
           <div class="choice-item"><input type="checkbox" id="q8-1" value="Too much reading"><label for="q8-1">Too much reading</label></div>
@@ -473,13 +488,13 @@
           <div class="choice-item"><input type="checkbox" id="q8-10" value="Doesn't give enough opportunity to practise decision-making"><label for="q8-10">Doesn't give enough opportunity to practise real decision-making</label></div>
           <div class="choice-item"><input type="checkbox" id="q8-11" value="Nothing in particular"><label for="q8-11">Nothing in particular</label></div>
         </div>
-      </div>
+      </fieldset>
 
-      <div class="question">
-        <span class="question-label">Is there anything else you'd change about safeguarding training?</span>
+      <fieldset class="question">
+        <legend>Is there anything else you'd change about safeguarding training?</legend>
         <p class="question-hint">Optional.</p>
         <textarea id="q9" placeholder="Your thoughts here…"></textarea>
-      </div>
+      </fieldset>
 
       <div class="nav-row">
         <button type="button" class="btn btn-ghost" onclick="goPrev(3)">← Back</button>
@@ -497,8 +512,8 @@
         <p>The idea is to make safeguarding training feel less like something you sit through, and more like something you experience.</p>
       </div>
 
-      <div class="question">
-        <span class="question-label">How useful do you think an approach like this could be for safeguarding education?</span>
+      <fieldset class="question">
+        <legend>How useful do you think an approach like this could be for safeguarding education?</legend>
         <div class="rating-wrap">
           <div class="rating-pills">
             <div class="rating-pill"><input type="radio" name="q10" id="q10-1" value="1"><label for="q10-1">1</label></div>
@@ -509,16 +524,16 @@
           </div>
           <div class="rating-anchors"><span>Not useful at all</span><span>Extremely useful</span></div>
         </div>
-      </div>
+      </fieldset>
 
-      <div class="question">
-        <span class="question-label">Would you be interested in trying a prototype?</span>
+      <fieldset class="question">
+        <legend>Would you be interested in trying a prototype?</legend>
         <div class="choices">
           <div class="choice-item"><input type="radio" name="q11" id="q11-1" value="Yes"><label for="q11-1">Yes</label></div>
           <div class="choice-item"><input type="radio" name="q11" id="q11-2" value="Maybe"><label for="q11-2">Maybe</label></div>
           <div class="choice-item"><input type="radio" name="q11" id="q11-3" value="No"><label for="q11-3">No</label></div>
         </div>
-      </div>
+      </fieldset>
 
       <div class="nav-row">
         <button type="button" class="btn btn-ghost" onclick="goPrev(4)">← Back</button>
@@ -532,8 +547,8 @@
       <h2 class="section-title">Stay in Touch</h2>
       <div class="divider"></div>
 
-      <div class="question">
-        <span class="question-label">Would you be willing to take part in future research or prototype testing?</span>
+      <fieldset class="question">
+        <legend>Would you be willing to take part in future research or prototype testing?</legend>
         <div class="choices">
           <div class="choice-item"><input type="radio" name="q12" id="q12-1" value="Yes" onchange="toggle('q12-email')"><label for="q12-1">Yes</label></div>
           <div class="choice-item"><input type="radio" name="q12" id="q12-2" value="Maybe" onchange="toggle('q12-email')"><label for="q12-2">Maybe</label></div>
@@ -547,7 +562,7 @@
             <p class="privacy-note">Only used to contact you about this research. Never shared or published.</p>
           </div>
         </div>
-      </div>
+      </fieldset>
 
       <div class="nav-row">
         <button type="button" class="btn btn-ghost" onclick="goPrev(5)">← Back</button>
