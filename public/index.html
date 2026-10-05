@@ -495,10 +495,11 @@
     });
   });
 
-  // advance on radio selection
+  // auto-advance on radio selection
   document.querySelectorAll('input[type="radio"]').forEach(r => {
     r.addEventListener('change', () => {
       document.getElementById('validation-msg').classList.remove('show');
+      setTimeout(nextQuestion, 300);
     });
   });
 
