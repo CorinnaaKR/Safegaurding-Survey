@@ -32,6 +32,7 @@
     padding: 48px 24px 80px;
   }
 
+  /* ── Intro ── */
   .eyebrow {
     font-family: 'JetBrains Mono', monospace;
     font-size: 10px;
@@ -58,24 +59,38 @@
   }
   .survey-intro p + p { margin-top: 10px; }
 
+  /* ── Form ── */
   #survey-form { display: none; }
   #survey-form.active { display: block; }
 
-  .questions { display: flex; flex-direction: column; gap: 40px; }
+  /* ── Step counter ── */
+  .step-counter {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 32px;
+  }
+  .step-counter span { color: var(--primary); }
 
+  /* ── Questions: one shown at a time ── */
   fieldset.q {
     border: none;
     padding: 0;
     min-width: 0;
+    display: none;
   }
+  fieldset.q.active { display: block; }
+
   fieldset.q legend {
     font-family: 'JetBrains Mono', monospace;
     font-size: 13px;
     letter-spacing: .06em;
     text-transform: uppercase;
     color: var(--fg);
-    margin-bottom: 16px;
-    line-height: 1.55;
+    margin-bottom: 20px;
+    line-height: 1.6;
     width: 100%;
     text-wrap: balance;
   }
@@ -92,6 +107,7 @@
     font-style: italic;
   }
 
+  /* ── Choices ── */
   .choices { display: flex; flex-direction: column; gap: 6px; }
   .choice-item { position: relative; }
   .choice-item input { position: absolute; opacity: 0; width: 1px; height: 1px; }
@@ -117,6 +133,7 @@
     outline-offset: 2px;
   }
 
+  /* ── Rating ── */
   .rating-wrap { display: flex; flex-direction: column; gap: 10px; }
   .rating-pills { display: flex; gap: 8px; flex-wrap: wrap; }
   .rating-pill { position: relative; }
@@ -153,6 +170,7 @@
     color: var(--muted);
   }
 
+  /* ── Text inputs ── */
   input[type="email"],
   textarea {
     width: 100%;
@@ -166,7 +184,7 @@
     transition: border-color .12s;
     resize: vertical;
   }
-  textarea { line-height: 1.6; min-height: 100px; }
+  textarea { line-height: 1.6; min-height: 120px; }
   input[type="email"]::placeholder,
   textarea::placeholder { color: var(--muted); opacity: 1; }
   input[type="email"]:focus,
@@ -174,35 +192,54 @@
   input[type="email"]:focus-visible,
   textarea:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 
-  .email-note {
+  .field-note {
     margin-top: 8px;
     font-size: 12px;
     color: var(--muted);
     font-style: italic;
   }
 
-  .submit-row {
-    margin-top: 48px;
-    padding-top: 32px;
+  /* ── Nav row ── */
+  .nav-row {
+    margin-top: 40px;
+    padding-top: 28px;
     border-top: 1px solid var(--border);
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 16px;
   }
-  .btn-submit {
+  .btn {
     font-family: 'Archivo', sans-serif;
     font-size: 15px;
     font-weight: 700;
     padding: 14px 32px;
-    background: var(--primary);
-    color: hsl(24,14%,10%);
     border: none;
     cursor: pointer;
     transition: opacity .15s;
+    line-height: 1;
   }
-  .btn-submit:hover { opacity: .88; }
-  .btn-submit:disabled { opacity: .3; cursor: not-allowed; }
-  .btn-submit:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+  .btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+  .btn-primary { background: var(--primary); color: hsl(24,14%,10%); }
+  .btn-primary:hover { opacity: .88; }
+  .btn-primary:disabled { opacity: .3; cursor: not-allowed; }
+  .btn-back {
+    background: transparent;
+    color: var(--muted);
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .btn-back:hover { color: var(--fg); }
+
+  .validation-msg {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .06em;
+    color: var(--primary);
+    opacity: 0;
+    transition: opacity .2s;
+    margin-left: auto;
+  }
+  .validation-msg.show { opacity: 1; }
 
   .saving {
     font-family: 'JetBrains Mono', monospace;
@@ -212,9 +249,11 @@
     color: var(--muted);
     opacity: 0;
     transition: opacity .3s;
+    margin-left: auto;
   }
   .saving.show { opacity: 1; }
 
+  /* ── Completion ── */
   #completion { display: none; padding: 80px 0 40px; text-align: center; }
   #completion.active { display: block; }
   .completion-mark {
@@ -254,140 +293,142 @@
     <h1 class="survey-title">Safeguarding Training:<br>Your Honest Experience</h1>
     <div class="survey-intro">
       <p>I'm carrying out independent research into how people experience safeguarding training — what works, what doesn't, and whether there's appetite for something different.</p>
-      <p>Nine questions. About 2 minutes. No right answers — honest ones are what matter.</p>
+      <p>Ten questions. About 2 minutes. No right answers — honest ones are what matter.</p>
     </div>
-    <button class="btn-submit" onclick="startSurvey()">Begin →</button>
+    <button class="btn btn-primary" onclick="startSurvey()">Begin →</button>
   </div>
 
   <form id="survey-form" novalidate>
-    <div class="questions">
 
-      <fieldset class="q">
-        <legend><span class="q-number">01</span> Which best describes your current role?</legend>
-        <div class="choices">
-          <div class="choice-item"><input type="radio" name="q1" id="q1-1" value="Teacher"><label for="q1-1">Teacher</label></div>
-          <div class="choice-item"><input type="radio" name="q1" id="q1-2" value="Teaching Assistant / Learning Support Assistant"><label for="q1-2">Teaching Assistant / Learning Support Assistant</label></div>
-          <div class="choice-item"><input type="radio" name="q1" id="q1-3" value="Designated Safeguarding Lead / Deputy DSL"><label for="q1-3">Designated Safeguarding Lead / Deputy DSL</label></div>
-          <div class="choice-item"><input type="radio" name="q1" id="q1-4" value="Headteacher / Senior Leadership"><label for="q1-4">Headteacher / Senior Leadership</label></div>
-          <div class="choice-item"><input type="radio" name="q1" id="q1-5" value="Early Years practitioner"><label for="q1-5">Early Years practitioner</label></div>
-          <div class="choice-item"><input type="radio" name="q1" id="q1-6" value="Social care / children's services"><label for="q1-6">Social care / children's services</label></div>
-          <div class="choice-item"><input type="radio" name="q1" id="q1-7" value="Youth worker"><label for="q1-7">Youth worker</label></div>
-          <div class="choice-item"><input type="radio" name="q1" id="q1-8" value="Healthcare professional"><label for="q1-8">Healthcare professional</label></div>
-          <div class="choice-item"><input type="radio" name="q1" id="q1-9" value="Volunteer working with children or young people"><label for="q1-9">Volunteer working with children or young people</label></div>
-          <div class="choice-item"><input type="radio" name="q1" id="q1-10" value="Student / trainee"><label for="q1-10">Student / trainee</label></div>
-          <div class="choice-item"><input type="radio" name="q1" id="q1-11" value="Other"><label for="q1-11">Other</label></div>
+    <p class="step-counter">Question <span id="step-current">1</span> of <span id="step-total">10</span></p>
+
+    <fieldset class="q active" data-required="radio" data-name="q1">
+      <legend><span class="q-number">01</span> Which best describes your current role?</legend>
+      <div class="choices">
+        <div class="choice-item"><input type="radio" name="q1" id="q1-1" value="Teacher"><label for="q1-1">Teacher</label></div>
+        <div class="choice-item"><input type="radio" name="q1" id="q1-2" value="Teaching Assistant / Learning Support Assistant"><label for="q1-2">Teaching Assistant / Learning Support Assistant</label></div>
+        <div class="choice-item"><input type="radio" name="q1" id="q1-3" value="Designated Safeguarding Lead / Deputy DSL"><label for="q1-3">Designated Safeguarding Lead / Deputy DSL</label></div>
+        <div class="choice-item"><input type="radio" name="q1" id="q1-4" value="Headteacher / Senior Leadership"><label for="q1-4">Headteacher / Senior Leadership</label></div>
+        <div class="choice-item"><input type="radio" name="q1" id="q1-5" value="Early Years practitioner"><label for="q1-5">Early Years practitioner</label></div>
+        <div class="choice-item"><input type="radio" name="q1" id="q1-6" value="Social care / children's services"><label for="q1-6">Social care / children's services</label></div>
+        <div class="choice-item"><input type="radio" name="q1" id="q1-7" value="Youth worker"><label for="q1-7">Youth worker</label></div>
+        <div class="choice-item"><input type="radio" name="q1" id="q1-8" value="Healthcare professional"><label for="q1-8">Healthcare professional</label></div>
+        <div class="choice-item"><input type="radio" name="q1" id="q1-9" value="Volunteer working with children or young people"><label for="q1-9">Volunteer working with children or young people</label></div>
+        <div class="choice-item"><input type="radio" name="q1" id="q1-10" value="Student / trainee"><label for="q1-10">Student / trainee</label></div>
+        <div class="choice-item"><input type="radio" name="q1" id="q1-11" value="Other"><label for="q1-11">Other</label></div>
+      </div>
+    </fieldset>
+
+    <fieldset class="q" data-required="radio" data-name="q2">
+      <legend><span class="q-number">02</span> What type of setting do you primarily work in?</legend>
+      <div class="choices">
+        <div class="choice-item"><input type="radio" name="q2" id="q2-1" value="Primary school"><label for="q2-1">Primary school</label></div>
+        <div class="choice-item"><input type="radio" name="q2" id="q2-2" value="Secondary school"><label for="q2-2">Secondary school</label></div>
+        <div class="choice-item"><input type="radio" name="q2" id="q2-3" value="Special school / specialist education"><label for="q2-3">Special school / specialist education</label></div>
+        <div class="choice-item"><input type="radio" name="q2" id="q2-4" value="Further education / college"><label for="q2-4">Further education / college</label></div>
+        <div class="choice-item"><input type="radio" name="q2" id="q2-5" value="Early years / nursery"><label for="q2-5">Early years / nursery</label></div>
+        <div class="choice-item"><input type="radio" name="q2" id="q2-6" value="Children's social care"><label for="q2-6">Children's social care</label></div>
+        <div class="choice-item"><input type="radio" name="q2" id="q2-7" value="Youth / community organisation"><label for="q2-7">Youth / community organisation</label></div>
+        <div class="choice-item"><input type="radio" name="q2" id="q2-8" value="Healthcare setting"><label for="q2-8">Healthcare setting</label></div>
+        <div class="choice-item"><input type="radio" name="q2" id="q2-9" value="Charity / voluntary organisation"><label for="q2-9">Charity / voluntary organisation</label></div>
+        <div class="choice-item"><input type="radio" name="q2" id="q2-10" value="Other"><label for="q2-10">Other</label></div>
+      </div>
+    </fieldset>
+
+    <fieldset class="q" data-required="radio" data-name="q3">
+      <legend><span class="q-number">03</span> How long have you worked in a role involving children or young people?</legend>
+      <div class="choices">
+        <div class="choice-item"><input type="radio" name="q3" id="q3-1" value="Less than 1 year"><label for="q3-1">Less than 1 year</label></div>
+        <div class="choice-item"><input type="radio" name="q3" id="q3-2" value="1–2 years"><label for="q3-2">1–2 years</label></div>
+        <div class="choice-item"><input type="radio" name="q3" id="q3-3" value="3–5 years"><label for="q3-3">3–5 years</label></div>
+        <div class="choice-item"><input type="radio" name="q3" id="q3-4" value="6–10 years"><label for="q3-4">6–10 years</label></div>
+        <div class="choice-item"><input type="radio" name="q3" id="q3-5" value="11–20 years"><label for="q3-5">11–20 years</label></div>
+        <div class="choice-item"><input type="radio" name="q3" id="q3-6" value="More than 20 years"><label for="q3-6">More than 20 years</label></div>
+      </div>
+    </fieldset>
+
+    <fieldset class="q" data-required="radio" data-name="q4">
+      <legend><span class="q-number">04</span> Honestly, how do you typically approach safeguarding training?</legend>
+      <div class="choices">
+        <div class="choice-item"><input type="radio" name="q4" id="q4-1" value="I engage with it fully"><label for="q4-1">I engage with it fully</label></div>
+        <div class="choice-item"><input type="radio" name="q4" id="q4-2" value="I complete it but don't find it particularly engaging"><label for="q4-2">I complete it but don't find it particularly engaging</label></div>
+        <div class="choice-item"><input type="radio" name="q4" id="q4-3" value="I do it because it's required and get through it as quickly as possible"><label for="q4-3">I do it because it's required and get through it as quickly as possible</label></div>
+        <div class="choice-item"><input type="radio" name="q4" id="q4-4" value="I skip through as much as possible"><label for="q4-4">I skip through as much as possible</label></div>
+        <div class="choice-item"><input type="radio" name="q4" id="q4-5" value="It varies depending on the training"><label for="q4-5">It varies depending on the training</label></div>
+      </div>
+    </fieldset>
+
+    <fieldset class="q" data-required="radio" data-name="q5">
+      <legend><span class="q-number">05</span> How engaging do you generally find safeguarding training?</legend>
+      <div class="rating-wrap">
+        <div class="rating-pills">
+          <div class="rating-pill"><input type="radio" name="q5" id="q5-1" value="1"><label for="q5-1">1</label></div>
+          <div class="rating-pill"><input type="radio" name="q5" id="q5-2" value="2"><label for="q5-2">2</label></div>
+          <div class="rating-pill"><input type="radio" name="q5" id="q5-3" value="3"><label for="q5-3">3</label></div>
+          <div class="rating-pill"><input type="radio" name="q5" id="q5-4" value="4"><label for="q5-4">4</label></div>
+          <div class="rating-pill"><input type="radio" name="q5" id="q5-5" value="5"><label for="q5-5">5</label></div>
         </div>
-      </fieldset>
+        <div class="rating-anchors"><span>Not engaging at all</span><span>Extremely engaging</span></div>
+      </div>
+    </fieldset>
 
-      <fieldset class="q">
-        <legend><span class="q-number">02</span> What type of setting do you primarily work in?</legend>
-        <div class="choices">
-          <div class="choice-item"><input type="radio" name="q2" id="q2-1" value="Primary school"><label for="q2-1">Primary school</label></div>
-          <div class="choice-item"><input type="radio" name="q2" id="q2-2" value="Secondary school"><label for="q2-2">Secondary school</label></div>
-          <div class="choice-item"><input type="radio" name="q2" id="q2-3" value="Special school / specialist education"><label for="q2-3">Special school / specialist education</label></div>
-          <div class="choice-item"><input type="radio" name="q2" id="q2-4" value="Further education / college"><label for="q2-4">Further education / college</label></div>
-          <div class="choice-item"><input type="radio" name="q2" id="q2-5" value="Early years / nursery"><label for="q2-5">Early years / nursery</label></div>
-          <div class="choice-item"><input type="radio" name="q2" id="q2-6" value="Children's social care"><label for="q2-6">Children's social care</label></div>
-          <div class="choice-item"><input type="radio" name="q2" id="q2-7" value="Youth / community organisation"><label for="q2-7">Youth / community organisation</label></div>
-          <div class="choice-item"><input type="radio" name="q2" id="q2-8" value="Healthcare setting"><label for="q2-8">Healthcare setting</label></div>
-          <div class="choice-item"><input type="radio" name="q2" id="q2-9" value="Charity / voluntary organisation"><label for="q2-9">Charity / voluntary organisation</label></div>
-          <div class="choice-item"><input type="radio" name="q2" id="q2-10" value="Other"><label for="q2-10">Other</label></div>
+    <fieldset class="q" data-required="optional" data-name="q6">
+      <legend><span class="q-number">06</span> What frustrates you most about safeguarding training?</legend>
+      <p class="q-hint">Pick up to 3.</p>
+      <div class="choices">
+        <div class="choice-item"><input type="checkbox" id="q6-1" value="Too much reading"><label for="q6-1">Too much reading</label></div>
+        <div class="choice-item"><input type="checkbox" id="q6-2" value="Repetitive — feels the same every year"><label for="q6-2">Repetitive — feels the same every year</label></div>
+        <div class="choice-item"><input type="checkbox" id="q6-3" value="Not interactive enough"><label for="q6-3">Not interactive enough</label></div>
+        <div class="choice-item"><input type="checkbox" id="q6-4" value="Scenarios don't feel realistic"><label for="q6-4">Scenarios don't feel realistic</label></div>
+        <div class="choice-item"><input type="checkbox" id="q6-5" value="Feels like a box-ticking exercise"><label for="q6-5">Feels like a box-ticking exercise</label></div>
+        <div class="choice-item"><input type="checkbox" id="q6-6" value="Hard to remember anything useful afterwards"><label for="q6-6">Hard to remember anything useful afterwards</label></div>
+        <div class="choice-item"><input type="checkbox" id="q6-7" value="No opportunity to practise real decision-making"><label for="q6-7">No opportunity to practise real decision-making</label></div>
+        <div class="choice-item"><input type="checkbox" id="q6-8" value="Nothing in particular"><label for="q6-8">Nothing in particular</label></div>
+      </div>
+    </fieldset>
+
+    <fieldset class="q" data-required="radio" data-name="q7">
+      <legend><span class="q-number">07</span> How useful do you think an interactive, scenario-based approach to safeguarding training could be — where you make decisions and see what happens as a result?</legend>
+      <div class="rating-wrap">
+        <div class="rating-pills">
+          <div class="rating-pill"><input type="radio" name="q7" id="q7-1" value="1"><label for="q7-1">1</label></div>
+          <div class="rating-pill"><input type="radio" name="q7" id="q7-2" value="2"><label for="q7-2">2</label></div>
+          <div class="rating-pill"><input type="radio" name="q7" id="q7-3" value="3"><label for="q7-3">3</label></div>
+          <div class="rating-pill"><input type="radio" name="q7" id="q7-4" value="4"><label for="q7-4">4</label></div>
+          <div class="rating-pill"><input type="radio" name="q7" id="q7-5" value="5"><label for="q7-5">5</label></div>
         </div>
-      </fieldset>
+        <div class="rating-anchors"><span>Not useful at all</span><span>Extremely useful</span></div>
+      </div>
+    </fieldset>
 
-      <fieldset class="q">
-        <legend><span class="q-number">03</span> How long have you worked in a role involving children or young people?</legend>
-        <div class="choices">
-          <div class="choice-item"><input type="radio" name="q3" id="q3-1" value="Less than 1 year"><label for="q3-1">Less than 1 year</label></div>
-          <div class="choice-item"><input type="radio" name="q3" id="q3-2" value="1–2 years"><label for="q3-2">1–2 years</label></div>
-          <div class="choice-item"><input type="radio" name="q3" id="q3-3" value="3–5 years"><label for="q3-3">3–5 years</label></div>
-          <div class="choice-item"><input type="radio" name="q3" id="q3-4" value="6–10 years"><label for="q3-4">6–10 years</label></div>
-          <div class="choice-item"><input type="radio" name="q3" id="q3-5" value="11–20 years"><label for="q3-5">11–20 years</label></div>
-          <div class="choice-item"><input type="radio" name="q3" id="q3-6" value="More than 20 years"><label for="q3-6">More than 20 years</label></div>
-        </div>
-      </fieldset>
+    <fieldset class="q" data-required="radio" data-name="q8">
+      <legend><span class="q-number">08</span> Would you be interested in trying a prototype of something like that?</legend>
+      <div class="choices">
+        <div class="choice-item"><input type="radio" name="q8" id="q8-1" value="Yes"><label for="q8-1">Yes</label></div>
+        <div class="choice-item"><input type="radio" name="q8" id="q8-2" value="Maybe"><label for="q8-2">Maybe</label></div>
+        <div class="choice-item"><input type="radio" name="q8" id="q8-3" value="No"><label for="q8-3">No</label></div>
+      </div>
+    </fieldset>
 
-      <fieldset class="q">
-        <legend><span class="q-number">04</span> Honestly, how do you typically approach safeguarding training?</legend>
-        <div class="choices">
-          <div class="choice-item"><input type="radio" name="q4" id="q4-1" value="I engage with it fully"><label for="q4-1">I engage with it fully</label></div>
-          <div class="choice-item"><input type="radio" name="q4" id="q4-2" value="I complete it but don't find it particularly engaging"><label for="q4-2">I complete it but don't find it particularly engaging</label></div>
-          <div class="choice-item"><input type="radio" name="q4" id="q4-3" value="I do it because it's required and get through it as quickly as possible"><label for="q4-3">I do it because it's required and get through it as quickly as possible</label></div>
-          <div class="choice-item"><input type="radio" name="q4" id="q4-4" value="I skip through as much as possible"><label for="q4-4">I skip through as much as possible</label></div>
-          <div class="choice-item"><input type="radio" name="q4" id="q4-5" value="It varies depending on the training"><label for="q4-5">It varies depending on the training</label></div>
-        </div>
-      </fieldset>
+    <fieldset class="q" data-required="optional">
+      <legend><span class="q-number">09</span> In your own words, what would make safeguarding training actually stick?</legend>
+      <textarea id="q9-text" placeholder="Anything that comes to mind — no wrong answers."></textarea>
+      <p class="field-note">Optional, but your words may be quoted (anonymously) in research.</p>
+    </fieldset>
 
-      <fieldset class="q">
-        <legend><span class="q-number">05</span> How engaging do you generally find safeguarding training?</legend>
-        <div class="rating-wrap">
-          <div class="rating-pills">
-            <div class="rating-pill"><input type="radio" name="q5" id="q5-1" value="1"><label for="q5-1">1</label></div>
-            <div class="rating-pill"><input type="radio" name="q5" id="q5-2" value="2"><label for="q5-2">2</label></div>
-            <div class="rating-pill"><input type="radio" name="q5" id="q5-3" value="3"><label for="q5-3">3</label></div>
-            <div class="rating-pill"><input type="radio" name="q5" id="q5-4" value="4"><label for="q5-4">4</label></div>
-            <div class="rating-pill"><input type="radio" name="q5" id="q5-5" value="5"><label for="q5-5">5</label></div>
-          </div>
-          <div class="rating-anchors"><span>Not engaging at all</span><span>Extremely engaging</span></div>
-        </div>
-      </fieldset>
+    <fieldset class="q" data-required="optional">
+      <legend><span class="q-number">10</span> Leave your email if you'd like to hear more.</legend>
+      <input type="email" id="q10-email" placeholder="your@email.com">
+      <p class="field-note">Optional. Only used to contact you about this research — never shared.</p>
+    </fieldset>
 
-      <fieldset class="q">
-        <legend><span class="q-number">06</span> What frustrates you most about safeguarding training?</legend>
-        <p class="q-hint">Pick up to 3.</p>
-        <div class="choices">
-          <div class="choice-item"><input type="checkbox" id="q6-1" value="Too much reading"><label for="q6-1">Too much reading</label></div>
-          <div class="choice-item"><input type="checkbox" id="q6-2" value="Repetitive — feels the same every year"><label for="q6-2">Repetitive — feels the same every year</label></div>
-          <div class="choice-item"><input type="checkbox" id="q6-3" value="Not interactive enough"><label for="q6-3">Not interactive enough</label></div>
-          <div class="choice-item"><input type="checkbox" id="q6-4" value="Scenarios don't feel realistic"><label for="q6-4">Scenarios don't feel realistic</label></div>
-          <div class="choice-item"><input type="checkbox" id="q6-5" value="Feels like a box-ticking exercise"><label for="q6-5">Feels like a box-ticking exercise</label></div>
-          <div class="choice-item"><input type="checkbox" id="q6-6" value="Hard to remember anything useful afterwards"><label for="q6-6">Hard to remember anything useful afterwards</label></div>
-          <div class="choice-item"><input type="checkbox" id="q6-7" value="No opportunity to practise real decision-making"><label for="q6-7">No opportunity to practise real decision-making</label></div>
-          <div class="choice-item"><input type="checkbox" id="q6-8" value="Nothing in particular"><label for="q6-8">Nothing in particular</label></div>
-        </div>
-      </fieldset>
-
-      <fieldset class="q">
-        <legend><span class="q-number">07</span> How useful do you think an interactive, scenario-based approach to safeguarding training could be — where you make decisions and see what happens as a result?</legend>
-        <div class="rating-wrap">
-          <div class="rating-pills">
-            <div class="rating-pill"><input type="radio" name="q7" id="q7-1" value="1"><label for="q7-1">1</label></div>
-            <div class="rating-pill"><input type="radio" name="q7" id="q7-2" value="2"><label for="q7-2">2</label></div>
-            <div class="rating-pill"><input type="radio" name="q7" id="q7-3" value="3"><label for="q7-3">3</label></div>
-            <div class="rating-pill"><input type="radio" name="q7" id="q7-4" value="4"><label for="q7-4">4</label></div>
-            <div class="rating-pill"><input type="radio" name="q7" id="q7-5" value="5"><label for="q7-5">5</label></div>
-          </div>
-          <div class="rating-anchors"><span>Not useful at all</span><span>Extremely useful</span></div>
-        </div>
-      </fieldset>
-
-      <fieldset class="q">
-        <legend><span class="q-number">08</span> Would you be interested in trying a prototype of something like that?</legend>
-        <div class="choices">
-          <div class="choice-item"><input type="radio" name="q8" id="q8-1" value="Yes"><label for="q8-1">Yes</label></div>
-          <div class="choice-item"><input type="radio" name="q8" id="q8-2" value="Maybe"><label for="q8-2">Maybe</label></div>
-          <div class="choice-item"><input type="radio" name="q8" id="q8-3" value="No"><label for="q8-3">No</label></div>
-        </div>
-      </fieldset>
-
-      <fieldset class="q">
-        <legend><span class="q-number">09</span> In your own words, what would make safeguarding training actually stick?</legend>
-        <textarea id="q9-text" rows="4" placeholder="Anything that comes to mind — no wrong answers." aria-label="In your own words, what would make safeguarding training actually stick?"></textarea>
-        <p class="email-note">Optional, but your words may be quoted (anonymously) in research.</p>
-      </fieldset>
-
-      <fieldset class="q">
-        <legend><span class="q-number">10</span> Leave your email if you'd like to hear more.</legend>
-        <input type="email" id="q10-email" placeholder="your@email.com">
-        <p class="email-note">Optional. Only used to contact you about this research — never shared.</p>
-      </fieldset>
-
-    </div>
-
-    <div class="submit-row">
-      <button type="button" class="btn-submit" id="submit-btn" onclick="submitSurvey()">Submit →</button>
+    <div class="nav-row">
+      <button type="button" class="btn btn-back" id="back-btn" onclick="prevQuestion()" style="display:none">← Back</button>
+      <button type="button" class="btn btn-primary" id="next-btn" onclick="nextQuestion()">Next →</button>
+      <span class="validation-msg" id="validation-msg">Please make a selection first</span>
       <span class="saving" id="saving-msg">Saving…</span>
     </div>
+
   </form>
 
   <div id="completion">
@@ -402,10 +443,69 @@
 </div>
 
 <script>
+  const questions = Array.from(document.querySelectorAll('fieldset.q'));
+  const TOTAL = questions.length;
+  let current = 0;
+
+  document.getElementById('step-total').textContent = TOTAL;
+
+  function showQuestion(idx) {
+    questions.forEach((q, i) => q.classList.toggle('active', i === idx));
+    document.getElementById('step-current').textContent = idx + 1;
+    document.getElementById('back-btn').style.display = idx === 0 ? 'none' : '';
+    document.getElementById('next-btn').textContent = idx === TOTAL - 1 ? 'Submit →' : 'Next →';
+    document.getElementById('validation-msg').classList.remove('show');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function isAnswered(q) {
+    if (q.dataset.required === 'optional') return true;
+    if (q.dataset.required === 'radio') {
+      return !!q.querySelector('input[type="radio"]:checked');
+    }
+    return true;
+  }
+
+  function nextQuestion() {
+    const q = questions[current];
+    if (!isAnswered(q)) {
+      document.getElementById('validation-msg').classList.add('show');
+      return;
+    }
+    if (current < TOTAL - 1) {
+      current++;
+      showQuestion(current);
+    } else {
+      submitSurvey();
+    }
+  }
+
+  function prevQuestion() {
+    if (current > 0) {
+      current--;
+      showQuestion(current);
+    }
+  }
+
+  // checkbox max-3 guard
+  document.querySelectorAll('[id^="q6-"]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      const checked = document.querySelectorAll('[id^="q6-"]:checked');
+      if (checked.length > 3) cb.checked = false;
+    });
+  });
+
+  // advance on radio selection
+  document.querySelectorAll('input[type="radio"]').forEach(r => {
+    r.addEventListener('change', () => {
+      document.getElementById('validation-msg').classList.remove('show');
+    });
+  });
+
   function startSurvey() {
     document.getElementById('intro').style.display = 'none';
     document.getElementById('survey-form').classList.add('active');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    showQuestion(0);
   }
 
   function radio(name) {
@@ -423,15 +523,8 @@
   function num(name) { const v = radio(name); return v ? parseInt(v, 10) : null; }
   function txt(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
 
-  document.querySelectorAll('[id^="q6-"]').forEach(cb => {
-    cb.addEventListener('change', () => {
-      const checked = document.querySelectorAll('[id^="q6-"]:checked');
-      if (checked.length > 3) cb.checked = false;
-    });
-  });
-
   async function submitSurvey() {
-    const btn = document.getElementById('submit-btn');
+    const btn = document.getElementById('next-btn');
     const saving = document.getElementById('saving-msg');
     btn.disabled = true;
     saving.classList.add('show');
