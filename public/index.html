@@ -153,7 +153,8 @@
     color: var(--muted);
   }
 
-  input[type="email"] {
+  input[type="email"],
+  textarea {
     width: 100%;
     background: var(--surface);
     border: 1px solid var(--border);
@@ -163,10 +164,15 @@
     color: var(--fg);
     outline: none;
     transition: border-color .12s;
+    resize: vertical;
   }
-  input[type="email"]::placeholder { color: var(--muted); opacity: 1; }
-  input[type="email"]:focus { border-color: rgba(240,162,62,.5); }
-  input[type="email"]:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+  textarea { line-height: 1.6; min-height: 100px; }
+  input[type="email"]::placeholder,
+  textarea::placeholder { color: var(--muted); opacity: 1; }
+  input[type="email"]:focus,
+  textarea:focus { border-color: rgba(240,162,62,.5); }
+  input[type="email"]:focus-visible,
+  textarea:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 
   .email-note {
     margin-top: 8px;
@@ -365,8 +371,14 @@
       </fieldset>
 
       <fieldset class="q">
-        <legend><span class="q-number">09</span> Leave your email if you'd like to hear more.</legend>
-        <input type="email" id="q9-email" placeholder="your@email.com">
+        <legend><span class="q-number">09</span> In your own words, what would make safeguarding training actually stick?</legend>
+        <textarea id="q9-text" rows="4" placeholder="Anything that comes to mind — no wrong answers." aria-label="In your own words, what would make safeguarding training actually stick?"></textarea>
+        <p class="email-note">Optional, but your words may be quoted (anonymously) in research.</p>
+      </fieldset>
+
+      <fieldset class="q">
+        <legend><span class="q-number">10</span> Leave your email if you'd like to hear more.</legend>
+        <input type="email" id="q10-email" placeholder="your@email.com">
         <p class="email-note">Optional. Only used to contact you about this research — never shared.</p>
       </fieldset>
 
@@ -434,7 +446,8 @@
       'Frustrations':       checkboxes('q6', 8),
       'HELI Useful':        num('q7'),
       'Prototype Interest': radio('q8'),
-      'Email':              txt('q9-email'),
+      'What Would Help':    txt('q9-text'),
+      'Email':              txt('q10-email'),
     };
 
     Object.keys(fields).forEach(k => {

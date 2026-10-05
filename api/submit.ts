@@ -14,6 +14,7 @@ const ALLOWED_FIELDS = new Set([
   'Frustrations',
   'HELI Useful',
   'Prototype Interest',
+  'What Would Help',
   'Email',
 ]);
 
